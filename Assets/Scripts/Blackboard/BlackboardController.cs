@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 public class BlackboardController : MonoBehaviour
@@ -102,19 +104,86 @@ public class BlackboardController : MonoBehaviour
         }
     }
 
+    private BlackboardStateSave SaveBlackboardState()
+    {
+        BlackboardStateSave save = new BlackboardStateSave();
+        
+        foreach (KeyValuePair<string, BlackboardVariable> entry in blackboard.AsList())
+        {
+            if (entry.Value == null || entry.Value.persistenceType == PersistenceType.AlwaysPersist) 
+                continue;
+            
+            if (entry.Value.persistenceType == PersistenceType.SavedToFile)
+                save.savedEntries.Add(new KeyValuePair<string, BVarSave>(entry.Key, entry.Value.CreateSave()));
+            
+            entry.Value.UndoChanges();
+        }
+
+        return save;
+    }
+
     private void LoadBlackboardState()
     {
-        foreach (KeyValuePair<string,BlackboardVariable> entry in blackboard.AsList())
+        if (File.Exists(Application.persistentDataPath + "/SaveFile"))
         {
-            if (entry.Value != null) entry.Value.SnapshotState();
+            BlackboardStateSave save;
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                FileStream file = File.Open(Application.persistentDataPath + "/SaveFile", FileMode.Open);
+                save = (BlackboardStateSave)bf.Deserialize(file);
+                file.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                Debug.LogError("You most likely need to delete the SaveFile file at '" + 
+                               Application.persistentDataPath + "', start/stop the game and look at the exception " +
+                               "thrown on playmode exit");
+                throw;
+            }
+            
+            foreach (KeyValuePair<string, BVarSave> entry in save.savedEntries)
+            {
+                if (!blackboard.KeyExists(entry.Key))
+                {
+                    Debug.LogWarning($"Key {entry.Key} does not exist for the current blackboard. Skipping.");
+                    continue;
+                }
+
+                BlackboardVariable finalValue = blackboard.GetValue(entry.Key);
+                if (entry.Value.GetType() != finalValue.GetSaveType())
+                {
+                    Debug.LogWarning($"Value {entry.Value.GetType()} does not match the value type of current " +
+                                     $"blackboard's {entry.Key} key, which is {finalValue.GetType()}. Skipping.");
+                    continue;
+                }
+                
+                if(finalValue.persistenceType == PersistenceType.SavedToFile) finalValue.LoadFrom(entry.Value);
+            }
+
+            foreach (KeyValuePair<string,BlackboardVariable> entry in blackboard.AsList())
+            {
+                if (entry.Value != null && entry.Value.persistenceType != PersistenceType.SavedToFile) 
+                    entry.Value.SnapshotState();
+            }
+        }
+        else
+        {
+            Debug.Log("No saved blackboard data found.");
         }
     }
 
     private void OnDestroy()
     {
-        foreach (KeyValuePair<string, BlackboardVariable> entry in blackboard.AsList())
-        {
-            if (entry.Value != null && !entry.Value.shouldChangesPersist) entry.Value.UndoChanges();
-        }
+        // Prevents unnecessary saving if we're not destroying the original BlackboardController
+        if (instance != this) return;
+        
+        BlackboardStateSave save = SaveBlackboardState();
+        
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.Create(Application.persistentDataPath + "/SaveFile");
+        bf.Serialize(file, save);
+        file.Close();
     }
 }

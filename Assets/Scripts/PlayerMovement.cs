@@ -3,6 +3,9 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    private BlackboardController bc;
+    private PlayerStatsVariable playerStats;
+    
     private CharacterController cc;
     [SerializeField] private float turnSmoothTime = 0.1f;
     private float turnSmoothVelocity;
@@ -14,6 +17,11 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        bc = GameObject.FindWithTag("BlackboardController").GetComponent<BlackboardController>();
+        playerStats = (PlayerStatsVariable)bc.GetBlackboardValue("PlayerStats");
+        transform.position =
+            new Vector3(playerStats.playerPosition.x, transform.position.y, playerStats.playerPosition.z);
+        
         cc = GetComponent<CharacterController>();
         cam = Camera.main.transform;
     }
@@ -41,5 +49,7 @@ public class PlayerMovement : MonoBehaviour
             
             if (cc.enabled) cc.Move(moveDir.normalized * walkSpeed * Time.deltaTime);
         }
+
+        playerStats.playerPosition = transform.position;
     }
 }

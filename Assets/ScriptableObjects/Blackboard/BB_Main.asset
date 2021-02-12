@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b5057a91d7a430cbb8c52a42b41a96b, type: 3}
   m_Name: BB_Main
   m_EditorClassIdentifier: 
-  rowsCount: 2
+  rowsCount: 3
   blackboardEntries:
     keys:
     - DoorOpen
     - DoorOpen2
+    - PlayerStats
     values:
     - {fileID: 11400000, guid: 2535df1f18e49004992357fc75a18216, type: 2}
     - {fileID: 11400000, guid: 564581a4690b354409da213a97fc4996, type: 2}
+    - {fileID: 11400000, guid: e0242c1d57918244eb8a3da15e131def, type: 2}
