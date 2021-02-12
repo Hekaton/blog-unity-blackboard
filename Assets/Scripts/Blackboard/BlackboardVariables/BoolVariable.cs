@@ -4,4 +4,15 @@
 public class BoolVariable : BlackboardVariable
 {
     public bool value;
+    private bool valueSnapshot;
+
+    public override void SnapshotState()
+    {
+        valueSnapshot = value;
+    }
+
+    public override void UndoChanges()
+    {
+        value = valueSnapshot;
+    }
 }

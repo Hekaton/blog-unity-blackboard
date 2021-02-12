@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -10,6 +11,10 @@ public class Blackboard : ScriptableObject
     [Serializable] public class DictionaryOfStringAndBV : SerializableDictionary<string, BlackboardVariable> {}
 
     [SerializeField] private DictionaryOfStringAndBV blackboardEntries = new DictionaryOfStringAndBV();
+
+    ///<summary> Use this when iterating over the whole blackboard. To get a single blackboard entry,
+    /// use GetBlackboardValue (when dealing with the blackboard controller) or GetValue instead. </summary>
+    public List<KeyValuePair<string, BlackboardVariable>> AsList() => blackboardEntries.ToList();
     
     public bool KeyExists(string eventName) => blackboardEntries.ContainsKey(eventName);
     public BlackboardVariable GetValue(string eventName) => blackboardEntries[eventName];

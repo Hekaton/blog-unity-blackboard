@@ -25,6 +25,8 @@ public class BlackboardController : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        
+        LoadBlackboardState();
     }
     
     public BlackboardVariable GetBlackboardValue(string key)
@@ -97,6 +99,22 @@ public class BlackboardController : MonoBehaviour
         if (blackboardEvents.TryGetValue(eventName, out tempEventHolder))
         {
             tempEventHolder?.Invoke(blackboard.GetValue(eventName));
+        }
+    }
+
+    private void LoadBlackboardState()
+    {
+        foreach (KeyValuePair<string,BlackboardVariable> entry in blackboard.AsList())
+        {
+            if (entry.Value != null) entry.Value.SnapshotState();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        foreach (KeyValuePair<string, BlackboardVariable> entry in blackboard.AsList())
+        {
+            if (entry.Value != null && !entry.Value.shouldChangesPersist) entry.Value.UndoChanges();
         }
     }
 }
