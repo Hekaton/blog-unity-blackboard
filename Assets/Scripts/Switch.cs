@@ -2,16 +2,18 @@
 
 public class Switch : MonoBehaviour, IInteractive
 {
-    private bool isOn;
-    
-    public void Toggle()
+    private BlackboardController bc;
+    [SerializeField] private string blackboardEventName;
+
+    private void Start()
     {
-        isOn = !isOn;
-        Debug.Log("switch is now " + isOn);
+        bc = GameObject.FindWithTag("BlackboardController").GetComponent<BlackboardController>();
     }
 
     public void Interact()
     {
-        Toggle();
+        BoolVariable boolVariable = (BoolVariable)bc.GetBlackboardValue(blackboardEventName);
+        boolVariable.value = !boolVariable.value;
+        bc.TriggerEvent(blackboardEventName);
     }
 }
