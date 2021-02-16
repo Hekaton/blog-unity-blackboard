@@ -12,7 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b5057a91d7a430cbb8c52a42b41a96b, type: 3}
   m_Name: BB_Main
   m_EditorClassIdentifier: 
-  rowsCount: 3
+  groupedBlackboardEntries:
+    keys:
+    - Level
+    - Player
+    values:
+    - list:
+      - DoorOpen
+      - DoorOpen2
+    - list:
+      - PlayerStats
   blackboardEntries:
     keys:
     - DoorOpen

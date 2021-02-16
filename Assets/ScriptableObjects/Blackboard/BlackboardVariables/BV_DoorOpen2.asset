@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2f8e8416157974439555785f35200b8, type: 3}
   m_Name: BV_DoorOpen2
   m_EditorClassIdentifier: 
+  persistenceType: 0
   value: 0

@@ -16,6 +16,18 @@ public class BlackboardController : MonoBehaviour
     private Dictionary<string, Action<BlackboardVariable>> blackboardEvents =
         new Dictionary<string, Action<BlackboardVariable>>();
 
+    ///<summary> Should only be used to contruct the custom editor </summary>
+    public Blackboard EditorGetBlackboard()
+    {
+        return blackboard;
+    }
+
+    public Blackboard EditorSetBlackboard(Blackboard newBB)
+    {
+        blackboard = newBB;
+        return blackboard;
+    }
+
     private void Awake()
     {
         if(instance == null)
